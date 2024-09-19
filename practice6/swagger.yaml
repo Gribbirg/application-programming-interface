@@ -1,0 +1,146 @@
+openapi: 3.0.0
+info:
+  title: Games API
+  description: API for managing a collection of computer games.
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/v1
+    description: Main API server
+
+paths:
+  /games:
+    get:
+      summary: Get list of all games
+      description: Returns a list of all games in the database.
+      responses:
+        '200':
+          description: A list of games
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+    post:
+      summary: Add a new game
+      description: Creates a new game entry in the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewGame'
+      responses:
+        '201':
+          description: Game successfully created
+        '400':
+          description: Invalid input
+
+  /games/{id}:
+    get:
+      summary: Get a game by ID
+      description: Returns details of a specific game by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The game ID
+      responses:
+        '200':
+          description: A single game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '404':
+          description: Game not found
+    put:
+      summary: Update a game by ID
+      description: Updates details of a specific game.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The game ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewGame'
+      responses:
+        '200':
+          description: Game successfully updated
+        '400':
+          description: Invalid input
+        '404':
+          description: Game not found
+    delete:
+      summary: Delete a game by ID
+      description: Deletes a specific game from the database.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The game ID
+      responses:
+        '204':
+          description: Game successfully deleted
+        '404':
+          description: Game not found
+
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The game's unique ID
+        title:
+          type: string
+          description: The title of the game
+        genre:
+          type: string
+          description: The genre of the game
+        platform:
+          type: string
+          description: The platform the game is available on (e.g., PC, PlayStation, Xbox)
+        releaseDate:
+          type: string
+          format: date
+          description: The game's release date
+      required:
+        - id
+        - title
+        - genre
+        - platform
+        - releaseDate
+
+    NewGame:
+      type: object
+      properties:
+        title:
+          type: string
+          description: The title of the game
+        genre:
+          type: string
+          description: The genre of the game
+        platform:
+          type: string
+          description: The platform the game is available on (e.g., PC, PlayStation, Xbox)
+        releaseDate:
+          type: string
+          format: date
+          description: The game's release date
+      required:
+        - title
+        - genre
+        - platform
+        - releaseDate

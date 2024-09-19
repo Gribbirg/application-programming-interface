@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            margin-bottom: 20px;
+        }
+
+        input {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>GraphQL Client</h1>
+
+<div class="container">
+    <h2>Users List</h2>
+    <button onclick="fetchUsers()">Fetch Users</button>
+    <ul id="usersList"></ul>
+</div>
+
+<div class="container">
+    <h2>Products List</h2>
+    <button onclick="fetchProducts()">Fetch Products</button>
+    <ul id="productsList"></ul>
+</div>
+
+<div class="container">
+    <h2>Add New User</h2>
+    <form id="addUserForm" onsubmit="addUser(event)">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required><br>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br>
+        <label for="surname">Surname:</label>
+        <input type="text" id="surname" required><br>
+        <button type="submit">Add User</button>
+    </form>
+    <p id="addUserMessage"></p>
+</div>
+
+<script>
+    const GRAPHQL_URL = 'http://localhost:1234/graphql';
+
+    async function fetchUsers() {
+        const query = `
+                {
+                    users {
+                        id
+                        username
+                        name
+                        surname
+                    }
+                }
+            `;
+
+        const response = await fetch(GRAPHQL_URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query})
+        });
+
+        const result = await response.json();
+        const users = result.data.users;
+
+        const usersList = document.getElementById('usersList');
+        usersList.innerHTML = '';
+
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = `ID: ${user.id}, Username: ${user.username}, Name: ${user.name}, Surname: ${user.surname}`;
+            usersList.appendChild(li);
+        });
+    }
+
+    async function fetchProducts() {
+        const query = `
+                {
+                    products {
+                        id
+                        text
+                        qty
+                        completed
+                    }
+                }
+            `;
+
+        const response = await fetch(GRAPHQL_URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query})
+        });
+
+        const result = await response.json();
+        const products = result.data.products;
+
+        const productsList = document.getElementById('productsList');
+        productsList.innerHTML = '';
+
+        products.forEach(product => {
+            const li = document.createElement('li');
+            li.textContent = `ID: ${product.id}, Text: ${product.text}, Quantity: ${product.qty}, Completed: ${product.completed}`;
+            productsList.appendChild(li);
+        });
+    }
+
+    async function addUser(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const name = document.getElementById('name').value;
+        const surname = document.getElementById('surname').value;
+
+        const mutation = `
+                mutation {
+                    adduser(id: "${Math.floor(Math.random() * 1000)}", username: "${username}", name: "${name}", surname: "${surname}") {
+                        id
+                        username
+                        name
+                        surname
+                    }
+                }
+            `;
+
+        const response = await fetch(GRAPHQL_URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query: mutation})
+        });
+
+        const result = await response.json();
+        const addedUser = result.data.adduser;
+
+        const message = document.getElementById('addUserMessage');
+        if (addedUser) {
+            message.textContent = `User added: ID ${addedUser.id}, Username: ${addedUser.username}, Name: ${addedUser.name}, Surname: ${addedUser.surname}`;
+        } else {
+            message.textContent = `Error adding user.`;
+        }
+
+        // Очистить форму после добавления
+        document.getElementById('addUserForm').reset();
+    }
+</script>
+</body>
+</html>
