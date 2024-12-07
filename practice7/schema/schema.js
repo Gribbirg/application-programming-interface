@@ -88,14 +88,28 @@ const Mutations = new GraphQLObjectType({
         adduser: {
             type: UserType,
             args: {
-                id: { type: new GraphQLNonNull(GraphQLID) },
-                username: { type: new GraphQLNonNull(GraphQLString) },
-                name: { type: GraphQLString},
-                surname: { type: GraphQLString }
+                id: {type: new GraphQLNonNull(GraphQLID)},
+                username: {type: new GraphQLNonNull(GraphQLString)},
+                name: {type: GraphQLString},
+                surname: {type: GraphQLString}
             },
-            resolve(parent,args) {
+            resolve(parent, args) {
                 const arrLength = users.push(args);
                 return users[arrLength - 1];
+            },
+        },
+        deleteUser: {
+            type: UserType,
+            args: {
+                id: {type: new GraphQLNonNull(GraphQLID)},
+            },
+            resolve(parent, args) {
+                const userIndex = users.findIndex(user => user.id === args.id);
+                if (userIndex === -1) {
+                    throw new Error('Пользователь не найден');
+                }
+                const deletedUser = users.splice(userIndex, 1);
+                return deletedUser[0];
             },
         },
     },
@@ -112,7 +126,7 @@ const users = [
         id: "0",
         username: "john_doe",
         name: "John",
-        surname: "Doe",
+        surname: "Gribbirg",
         product: {
             id: "0",
             text: "Laptop",
